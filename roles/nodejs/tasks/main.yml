@@ -1,0 +1,15 @@
+---
+
+- name: install nodejs
+  yum:
+    name: nodejs
+    state: present
+
+- name: configure npm
+  shell: npm config set registry {{ nodejs_registry }}
+
+- name: install nodejs global packages
+  npm:
+    name: "{{ item }}"
+    global: yes
+  loop: "{{ nodejs_global_packages }}"

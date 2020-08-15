@@ -1,0 +1,6 @@
+---
+
+nodejs_registry: http://artifactory.example.com/api/npm/npm/
+nodejs_global_packages:
+  - yarn
+  - pm2

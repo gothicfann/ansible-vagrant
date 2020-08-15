@@ -1,0 +1,7 @@
+---
+
+- name: install apm server
+  yum:
+    name: "apm-server-{{ apm_version }}"
+    state: present
+

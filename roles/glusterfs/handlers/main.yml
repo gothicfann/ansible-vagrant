@@ -1,0 +1,17 @@
+---
+
+- name: daemon reload
+  shell: systemctl daemon-reload
+
+- name: restart heketi
+  systemd:
+    name: heketi
+    state: restarted
+    daemon_reload: yes
+
+- name: update heketi topology
+  shell: heketi-cli topology load --json=/etc/heketi/topology.json
+  environment:
+    HEKETI_CLI_SERVER: "http://{{ inventory_hostname }}:8080"
+    HEKETI_CLI_USER: admin
+    HEKETI_CLI_KEY: "{{ glusterfs_heketi_password }}"

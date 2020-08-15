@@ -1,0 +1,11 @@
+<VirtualHost *:80>
+    Redirect permanent / https://{{ inventory_hostname }}/
+</VirtualHost>
+<VirtualHost *:443>
+    ServerName {{ inventory_hostname }}
+    ServerAlias www.{{ inventory_hostname }}
+    SSLEngine on
+    SSLCertificateFile {{ phpipam_httpd_ssl_dir }}/{{ ssl_certificate }}
+    SSLCertificateKeyFile {{ phpipam_httpd_ssl_dir }}/{{ ssl_certificate_key }}
+    DocumentRoot {{ phpipam_httpd_document_root }}
+</VirtualHost>

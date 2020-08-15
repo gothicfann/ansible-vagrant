@@ -1,0 +1,68 @@
+<system>
+  workers {{ fluentd_workers }}
+  log_level fatal
+</system>
+
+<source>
+  @type udp
+  tag network
+  <parse>
+    @type none
+  </parse>
+  port 514
+  bind 0.0.0.0
+  source_hostname_key client_host
+  source_address_key client_addr
+</source>
+
+<filter network>
+  @type record_transformer
+  <record>
+    tag ${tag}
+  </record>
+</filter>
+
+<source>
+  @type udp
+  tag esx
+  <parse>
+    @type none
+  </parse>
+  port 515
+  bind 0.0.0.0
+  source_hostname_key client_host
+  source_address_key client_addr
+</source>
+
+<filter esx>
+  @type record_transformer
+  <record>
+    tag ${tag}
+  </record>
+</filter>
+
+<source>
+  @type forward
+  tag fluentbit
+  port 24224
+  bind 0.0.0.0
+  <parse>
+    @type none
+  </parse>
+</source>
+
+<filter fluentbit>
+  @type record_transformer
+  <record>
+    tag ${tag}
+  </record>
+</filter>
+
+<match **>
+  @type elasticsearch
+  hosts {{ fluentd_es_hosts }}
+  user {{ fluentd_es_user }}
+  password {{ fluentd_es_password }}
+  logstash_format true
+  logstash_prefix ${tag}
+</match>

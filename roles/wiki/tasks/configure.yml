@@ -1,0 +1,43 @@
+---
+
+- name: configure postgresql for wiki
+  shell: |
+    psql -c "CREATE DATABASE {{ wiki_postgresql_db }};"
+    psql -c "CREATE USER {{ wiki_postgresql_user }} WITH ENCRYPTED PASSWORD '{{ wiki_postgresql_password }}';"
+    psql -c "GRANT ALL PRIVILEGES ON DATABASE {{ wiki_postgresql_db }} TO {{ wiki_postgresql_user }};"
+  become: yes
+  become_user: postgres
+  args:
+    creates: "{{ wiki_postgresql_base_dir }}/postgresql_config.test"
+
+- name: configure pg_hba file
+  template:
+    src: templates/pg_hba.conf.j2
+    dest: "{{ wiki_postgresql_data_dir }}/pg_hba.conf"
+  notify:
+    - restart postgresql
+
+## configure wikijs
+
+- name: extract wikijs
+  unarchive:
+    src: /var/wiki/wiki-js.tar.gz
+    dest: /var/wiki/
+    remote_src: yes
+
+- name: copy wikijs configuration file
+  template:
+    src: templates/config.yml.j2
+    dest: /var/wiki/config.yml
+
+- name: delete wikijs config file
+  file:
+    path: /var/wiki/config.sample.yml
+    state: absent
+
+- name: copy wikijs service file
+  copy:
+    src: files/wiki.service
+    dest: /etc/systemd/system/wiki.service
+  notify:
+    - restart wikijs

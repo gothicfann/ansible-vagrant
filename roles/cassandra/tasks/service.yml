@@ -1,0 +1,20 @@
+---
+
+- name: start/enable cassandra
+  systemd:
+    name: cassandra
+    state: started
+    enabled: yes
+  notify:
+    - restart cassandra
+
+- name: set cassandra password
+  shell: sleep 30 && cqlsh {{ inventory_hostname }} -u cassandra -p cassandra -e "ALTER USER cassandra WITH PASSWORD '{{ cassandra_password }}';"
+  ignore_errors: yes
+  args:
+    creates: /var/lib/cassandra/cassandra.test
+
+- name: create test file
+  file:
+    path: /var/lib/cassandra/cassandra.test
+    state: touch

@@ -1,0 +1,33 @@
+---
+
+- name: download postgres_exporter zipped archive
+  get_url:
+    url: https://jfrog.example.com/artifactory/generic-local/postgres_exporter_v0.8.0_linux-amd64.tar.gz
+    dest: "{{ ansible_env.HOME }}/postgres_exporter_v0.8.0_linux-amd64.tar.gz"
+
+- name: extract postgres_exporter zipped archive
+  unarchive:
+    src: "{{ ansible_env.HOME }}/postgres_exporter_v0.8.0_linux-amd64.tar.gz"
+    dest: "{{ ansible_env.HOME }}"
+    remote_src: yes
+
+- name: copy postgres_exporter bin file
+  copy:
+    src: "{{ ansible_env.HOME }}/postgres_exporter_v0.8.0_linux-amd64/postgres_exporter"
+    dest: /usr/local/bin/
+    remote_src: yes
+    mode: preserve
+
+- name: create postgres_exporter service file
+  template:
+    src: templates/postgres_exporter.service.j2
+    dest: /etc/systemd/system/postgres_exporter.service
+  notify:
+    - daemon reload
+    - restart postgres_exporter
+
+- name: start/enable postgres_exporter
+  systemd:
+    name: postgres_exporter
+    state: started
+    enabled: yes

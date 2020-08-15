@@ -1,0 +1,74 @@
+global:
+  scrape_interval: {{ prometheus_scrape_interval }}
+  scrape_timeout: {{ prometheus_scrape_timeout }}
+
+rule_files:
+  - rules.yml
+
+alerting:
+  alertmanagers:
+      - static_configs:
+         - targets:
+           - localhost:9093
+
+scrape_configs:
+{% for job in prometheus_jobs %}
+  - job_name: {{ job.name }}
+{% if job.scrape_interval is defined %}
+	  scrape_interval: {{ job.scrape_interval }}
+{% endif %}
+    static_configs:
+      - targets:
+{% for target in job.targets %}
+        - {{ target }}:{{ job.port }}
+{% endfor %}
+{% endfor %}
+
+  - job_name: 'blackbox-http'
+    metrics_path: /probe
+    params:
+      module: [http_2xx] 
+    static_configs:
+      - targets:
+{% for target in blackbox_http_targets %}
+        - {{ target }}
+{% endfor %}
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: {{ blackbox_url }}
+  - job_name: 'blackbox-tcp'
+    metrics_path: /probe
+    params:
+      module: [tcp_connect]
+    static_configs:
+      - targets:
+{% for target in blackbox_tcp_targets %}
+        - {{ target }}
+{% endfor %}
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: {{ blackbox_url }} 
+  - job_name: 'blackbox-icmp'
+    metrics_path: /probe
+    params:
+      module: [icmp]
+    static_configs:
+      - targets:
+{% for target in blackbox_icmp_targets %}
+        - {{ target }}
+{% endfor %}
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: {{ blackbox_url }}

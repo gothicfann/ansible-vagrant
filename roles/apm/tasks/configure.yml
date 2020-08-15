@@ -1,0 +1,16 @@
+---
+
+- name: copy apm server configuration file
+  template:
+    src: templates/apm-server.yml.j2
+    dest: /etc/apm-server/apm-server.yml
+    owner: root
+    group: apm-server
+  notify:
+    - restart apm-server
+  
+- name: change owner for meta.json file
+  file:
+    path: /var/lib/apm-server/meta.json
+    owner: apm-server
+    group: apm-server

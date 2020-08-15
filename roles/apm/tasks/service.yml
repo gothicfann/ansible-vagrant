@@ -1,0 +1,7 @@
+---
+
+- name: start/enable apm server
+  systemd:
+    name: apm-server
+    state: started
+    enabled: yes

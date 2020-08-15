@@ -1,0 +1,8 @@
+---
+
+- name: configure kibana
+  template:
+    src: templates/kibana.yml.j2
+    dest: /etc/kibana/kibana.yml
+  notify:
+    - restart kibana

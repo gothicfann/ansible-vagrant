@@ -1,0 +1,39 @@
+[SERVICE]
+    Flush        1
+    Log_Level    info
+    Parsers_File parsers.conf
+
+[INPUT]
+    Name      syslog
+    Tag       linux-syslog
+    Parser    syslog-rfc3164
+    Path      /tmp/fluent-bit.sock
+    Mode      unix_udp
+    Unix_Perm 0644
+
+[FILTER]
+    Name record_modifier
+    Match linux-syslog
+    Record fluentbit_log linux-syslog
+
+[INPUT]
+    Name                tail
+    Tag                 nginx-access
+    Path                /var/log/nginx/*access*.log
+    Parser              nginx-access
+
+[FILTER]
+    Name record_modifier
+    Match *
+    Record fluentbit_hostname ${HOSTNAME}
+
+[FILTER]
+    Name record_modifier
+    Match nginx-access
+    Record fluentbit_log nginx-access
+
+[OUTPUT]
+    Name          forward
+    Match         *
+    Host          {{ fluentbit_fluentd_host }}
+    Port          {{ fluentbit_fluentd_port }}

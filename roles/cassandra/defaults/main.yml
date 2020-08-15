@@ -1,0 +1,23 @@
+---
+
+cassandra_cluster_name: cassandra_cluster
+cassandra_file_directory: /var/lib/cassandra/data
+cassandra_commitlog_directory: /var/lib/cassandra/commitlog
+cassandra_saved_caches_directory: /var/lib/cassandra/saved_caches
+cassandra_seeds: "{{ inventory_hostname }}"
+cassandra_disk_optimization_strategy: ssd
+cassandra_listen_address: "{{ inventory_hostname }}"
+cassandra_authenticator: PasswordAuthenticator
+cassandra_authorizer: CassandraAuthorizer
+cassandra_start_rpc: true
+cassandra_rpc_address: "{{ inventory_hostname }}"
+cassandra_rpc_port: 9160
+cassandra_endpoint_snitch: SimpleSnitch
+cassandra_slow_query_log_timeout_in_ms: 500
+cassandra_dc: dc1
+cassandra_rack: rack1
+cassandra_jvm_min_heap_size: 2G
+cassandra_jvm_max_heap_size: 2G
+cassandra_request_timeout_in_ms: 10000
+
+cassandra_password: example

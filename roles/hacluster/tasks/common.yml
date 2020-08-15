@@ -1,0 +1,28 @@
+---
+
+- name: install hacluster packages
+  yum:
+    name:
+      - corosync
+      - pacemaker
+      - pcs
+    state: present
+
+- name: enable hacluster services
+  systemd:
+    name: "{{ item }}"
+    enabled: yes
+  with_items:
+    - pcsd
+    - corosync
+    - pacemaker
+
+- name: start pcsd
+  systemd:
+    name: pcsd
+    state: started
+
+- name: set hacluster password
+  shell: echo '{{ hacluster_passwd }}' | passwd hacluster --stdin > {{ ansible_env.HOME }}/hacluster_passwd
+  args:
+    creates: "{{ ansible_env.HOME }}/hacluster_passwd"

@@ -1,0 +1,27 @@
+---
+- name: add artifactory repo
+  yum_repository:
+    name: artifactory
+    description: Artifactory Pro Repository
+    baseurl: https://jfrog.bintray.com/artifactory-pro-rpms
+    gpgcheck: no
+
+- name: install java
+  yum:
+    name: java
+    state: present
+
+- name: install jfrog-artifactory-pro
+  yum:
+    name: jfrog-artifactory-pro
+    state: present
+
+- name: start artifactory
+  systemd:
+    name: artifactory
+    state: started
+
+- name: enable artifactory
+  systemd:
+    name: artifactory
+    enabled: yes

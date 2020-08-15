@@ -1,0 +1,11 @@
+---
+
+- import_tasks: master.yml
+  when: jenkins_mode == "master"
+- import_tasks: nginx.yml
+  when: jenkins_mode == "master"
+- import_tasks: firewalld.yml
+  when: jenkins_mode == "master"
+
+- import_tasks: agent.yml
+  when: jenkins_mode == "agent"

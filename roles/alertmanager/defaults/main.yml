@@ -1,0 +1,4 @@
+---
+
+alertmanager_footer: "Development"
+alertmanager_title_link: "https://alertmanager.example.com"

@@ -1,0 +1,65 @@
+---
+
+- name: install postgresql12-server
+  yum:
+    name: postgresql12-server
+    state: present
+
+- name: install postgresql12-contrib
+  yum:
+    name: postgresql12-contrib
+    state: present
+
+- name: initialize database cluster
+  command: "{{ postgresql12_bin_dir }}/postgresql-12-setup initdb"
+  args:
+    creates: "{{ postgresql12_data_dir }}/postgresql.conf"
+
+- name: create log directory
+  file:
+    path: "{{ postgresql12_log_directory }}"
+    state: directory
+    owner: postgres
+    group: postgres
+
+- name: modify postgresql.conf
+  template:
+    src: templates/postgresql.conf.j2
+    dest: "{{ postgresql12_data_dir }}/postgresql.conf"
+    owner: postgres
+    group: postgres
+    mode: 0660
+  notify:
+    - restart postgresql
+
+- name: modify pg_hba.conf
+  template:
+    src: templates/pg_hba.conf.j2
+    dest: "{{ postgresql12_data_dir }}/pg_hba.conf"
+    owner: postgres
+    group: postgres
+    mode: 0660
+  notify:
+    - restart postgresql
+
+- name: start postgresql
+  systemd:
+    name: postgresql-12
+    state: started
+
+- name: enable postgresql
+  systemd:
+    name: postgresql-12
+    enabled: yes
+
+- name: modify postgres db user password
+  command: psql -p {{ postgresql12_port }} -U postgres -d postgres -c "ALTER USER postgres WITH PASSWORD '{{ postgresql12_password }}';"
+  become: yes
+  become_user: postgres
+  args:
+    creates: "{{ postgresql12_base_dir }}/postgresql12_password.test"
+
+- name: create test file for postgres password change
+  file:
+    path: "{{ postgresql12_base_dir }}/postgresql12_password.test"
+    state: touch

@@ -1,0 +1,33 @@
+---
+
+- name: install redis
+  yum:
+    name: redis5
+    state: present
+
+- name: configure redis5
+  template:
+    src: templates/redis.conf.j2
+    dest: /etc/redis.conf
+    owner: redis
+    group: root
+    mode: 0640
+  notify:
+    - restart redis
+
+- name: start/enable redis
+  systemd:
+    name: redis
+    state: started
+    enabled: yes
+
+- name: join redis nodes
+  set_fact:
+    redis_joined_cluster_nodes: "{{ redis_nodes | join(':6379 ') }}"
+  when: redis_init|bool
+
+- name: create redis cluster
+  shell: redis-cli -a {{ redis_requirepass }} --cluster create {{ redis_joined_cluster_nodes }}:6379 --cluster-replicas 1 --cluster-yes > {{ ansible_env.HOME }}/join_cluster
+  args:
+    creates: "{{ ansible_env.HOME }}/join_cluster"
+  when: redis_init|bool

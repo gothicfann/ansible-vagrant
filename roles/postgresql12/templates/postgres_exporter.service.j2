@@ -1,0 +1,12 @@
+[Unit]
+Description=Prometheus exporter for Postgresql
+Wants=network-online.target
+After=network-online.target
+[Service]
+User=postgres
+Group=postgres
+Environment=DATA_SOURCE_NAME=postgresql://postgres:{{ postgresql12_password }}@{{ ansible_default_ipv4.address }}:{{ postgresql12_port }}/postgres?sslmode=disable
+ExecStart=/usr/local/bin/postgres_exporter
+Restart=always 
+[Install]
+WantedBy=multi-user.target

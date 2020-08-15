@@ -1,0 +1,30 @@
+{
+  "clusters": [
+    {
+      "nodes": [
+{% for node in glusterfs_peer_nodes %}
+        {
+          "node": {
+            "hostnames": {
+              "manage": [
+                "{{ node.hostname }}"
+              ],
+              "storage": [
+                "{{ node.ip }}"
+              ]
+            },
+            "zone": {{ loop.index }}
+          },
+          "devices": [
+{% for device in node.devices %}
+            "{{ device }}"{% if not loop.last %},{% else %}
+{%endif%}
+{% endfor %}
+          ]
+        }{% if not loop.last %},{% else %}
+{%endif%}
+{% endfor %}
+      ]
+    }
+  ]
+}

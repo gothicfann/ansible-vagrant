@@ -1,0 +1,11 @@
+---
+
+- name: install erlang
+  yum:
+    name: erlang
+    state: present
+
+- name: install rabbitmq-server
+  yum:
+    name: rabbitmq-server
+    state: present

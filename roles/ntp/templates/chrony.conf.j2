@@ -1,0 +1,9 @@
+{% for pool in ntp_servers %}
+server {{ pool }} iburst
+{% endfor %}
+
+driftfile /var/lib/chrony/drift
+makestep 1.0 3
+rtcsync
+allow all
+logdir /var/log/chrony

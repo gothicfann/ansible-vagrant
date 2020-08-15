@@ -1,0 +1,12 @@
+---
+
+jenkins_mode: master
+jenkins_nginx_ssl_dir: /etc/nginx/ssl/
+jenkins_protocol: http
+jenkins_http_addr: 127.0.0.1
+jenkins_http_port: 8080
+
+jenkins_nuget_user: devops
+jenkins_nuget_password: example
+jenkins_nuget_repos:
+  - nuget

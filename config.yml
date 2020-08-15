@@ -1,0 +1,9 @@
+---
+
+configs:
+  memory: 2048 
+  cpus: 2
+
+  nodes: 1
+  box: centos/7
+  playbook: vagrant.yml

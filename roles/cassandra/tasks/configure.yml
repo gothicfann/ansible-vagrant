@@ -1,0 +1,45 @@
+---
+
+- name: disable swappiness
+  shell: swapoff -a
+
+- name: configure fstab
+  replace:
+    path: /etc/fstab
+    regexp: '.*swap.*'
+    replace: ''
+
+- name: create cassandra systemd service file
+  copy:
+    src: files/cassandra.service
+    dest: /etc/systemd/system/cassandra.service
+  notify:
+    - restart cassandra
+
+- name: remove cassandra init.d script
+  file:
+    path: /etc/init.d/cassandra
+    state: absent
+  notify:
+    - restart cassandra
+
+- name: configure cassandra jvm options
+  template:
+    src: templates/jvm.options.j2
+    dest: /etc/cassandra/conf/jvm.options
+  notify:
+    - restart cassandra
+
+- name: configure cassandra
+  template:
+    src: templates/cassandra.yaml.j2
+    dest: /etc/cassandra/conf/cassandra.yaml
+  notify:
+    - restart cassandra
+
+- name: configure datacenter parameters
+  template:
+    src: templates/cassandra-rackdc.properties.j2
+    dest: /etc/cassandra/conf/cassandra-rackdc.properties
+  notify:
+    - restart cassandra

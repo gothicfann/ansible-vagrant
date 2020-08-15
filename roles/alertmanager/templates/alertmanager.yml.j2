@@ -1,0 +1,23 @@
+route:
+  group_by: ['alertname']
+  group_wait: 30s
+  group_interval: 15m
+  repeat_interval: 30m
+  receiver: "slack"
+  routes:
+    - receiver: "slack"
+      match_re:
+        severity: error|warning
+      continue: true
+
+receivers:
+  - name: "slack"
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/T4MRDLEDQ/B0119KTL8HG/example'
+        send_resolved: true
+        channel: '#prometheus'
+        title_link: {{ alertmanager_title_link }}
+{% raw %}
+        text: "{{ range .Alerts }}*{{ .Annotations.summary }}*\n{{ .Annotations.description }}\n{{ end }}"
+{% endraw %}
+        footer: {{ alertmanager_footer }}

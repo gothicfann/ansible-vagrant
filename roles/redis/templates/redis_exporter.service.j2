@@ -1,0 +1,11 @@
+[Unit]
+Description=Redis Exporter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/redis_exporter -redis.addr={{ redis_bind }} -redis.password={{ redis_requirepass }}
+
+[Install]
+WantedBy=multi-user.target

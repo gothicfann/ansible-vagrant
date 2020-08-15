@@ -1,0 +1,34 @@
+---
+
+- name: start firewalld
+  systemd:
+    name: firewalld
+    state: started
+
+- name: enable firewalld
+  systemd:
+    name: firewalld
+    enabled: yes
+
+- name: enable http in firewalld
+  firewalld:
+    service: http
+    permanent: yes
+    state: enabled
+    immediate: yes
+
+- name: enable https in firewalld
+  firewalld:
+    service: https
+    permanent: yes
+    state: enabled
+    immediate: yes
+
+- name: enable other ports in firewalld
+  firewalld:
+    port: "{{ item }}"
+    permanent: yes
+    state: enabled
+    immediate: yes
+  with_items:
+    - 9100/tcp

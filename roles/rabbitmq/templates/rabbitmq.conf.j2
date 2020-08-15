@@ -1,0 +1,26 @@
+# Server configurations
+default_user                           = {{ rabbitmq_default_user }}
+default_pass                           = {{ rabbitmq_default_pass }}
+loopback_users                         = {{ rabbitmq_loopback_users }}
+disk_free_limit.relative               = {{ rabbitmq_disk_free_limit_relative }}
+vm_memory_high_watermark.relative      = {{ rabbitmq_mem_high_watermark_relative }}
+vm_memory_high_watermark_paging_ratio  = {{ rabbitmq_mem_high_watermark_paging_ratio }}
+
+# AMQP configurations
+listeners.tcp.default = 5672
+
+# Management configurations
+management.listener.port = 15672
+
+# Cluster configurations
+cluster_formation.peer_discovery_backend = rabbit_peer_discovery_classic_config
+{% for rabbitmq_cluster_node in rabbitmq_cluster_nodes %}
+cluster_formation.classic_config.nodes.{{ loop.index }} = {{ rabbitmq_node_default_prefix }}@{{ rabbitmq_cluster_node }}
+{% endfor %}
+cluster_partition_handling = {{ rabbitmq_cluster_partition_handling }}
+
+# Logging configurations
+log.file = rabbit.log
+log.dir = /var/log/rabbitmq
+log.file.level = info
+

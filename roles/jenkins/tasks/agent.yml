@@ -1,0 +1,96 @@
+---
+- name: install java
+  yum:
+    name: java
+    state: present
+
+- name: install git
+  yum:
+    name: git
+    state: present
+
+- name: create jenkins directory
+  file:
+    path: /var/lib/jenkins
+    state: directory
+
+- name: copy ssh key
+  copy:
+    src: files/ssh/example.pem
+    dest: /root/.ssh/example.pem
+    mode: 0600
+    owner: root
+    group: root
+
+- name: configure ssh client
+  copy:
+    src: files/ssh/config
+    dest: /root/.ssh/config
+    mode: 0600
+    owner: root
+    group: root
+
+### CLEAN WORKSPACES
+- name: clean workspace every day cronjob
+  cron:
+    name: "clean workspace"
+    minute: "0"
+    hour: "5"
+    job: "rm -rf /var/lib/jenkins/workspace/*"
+
+### DOTNET CONFIG
+- import_role:
+    name: dotnet
+
+- name: clean nuget cache every 10 days cronjob
+  cron:
+    name: "clean nuget cache"
+    day: "*/10"
+    minute: "0"
+    hour: "5"
+    job: "dotnet nuget locals all --clear"
+
+### DOCKER CONFIG
+- name: install docker
+  yum:
+    name: docker-ce
+    state: latest
+  notify:
+    - restart docker
+
+- name: start/enable docker
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+    daemon_reload: yes
+
+- name: clean docker cache every day
+  cron:
+    name: "clean docker cache"
+    minute: "0"
+    hour: "5"
+    job: "docker system prune -af"
+
+### NODEJS CONFIG
+- import_role:
+    name: nodejs
+
+### KUBECTL CONFIG
+- name: install kubectl
+  yum:
+    name: kubectl
+    state: present
+
+- name: copy kube config files
+  copy:
+    src: "{{ item }}"
+    dest: "{{ ansible_env.HOME }}/.kube/"
+  with_fileglob:
+    - files/kubectl/*
+
+#### JAVA CONFIG
+- name: install maven
+  yum:
+    name: maven
+    state: present

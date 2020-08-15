@@ -1,0 +1,71 @@
+---
+baselinux_hostname: "{{ inventory_hostname }}"
+baselinux_timezone: "Asia/Tbilisi"
+baselinux_selinux_mode: "permissive"
+
+baselinux_root_passwd: "example"
+
+baselinux_sshd_port: "22"
+baselinux_sshd_logingracetime: "60m"
+baselinux_sshd_permitrootlogin: "yes"
+baselinux_sshd_maxauthtries: "6"
+baselinux_sshd_pubkeyauthentication: "yes"
+baselinux_sshd_passwordauthentication: "yes"
+baselinux_ssh_stricthostkeychecking: "no"
+baselinux_ssh_userknownhostsfile: "/dev/null"
+
+baselinux_figlet_string: "example"
+
+baselinux_delete_default_repos: true
+baselinux_repo_server: "jfrog.example.com"
+baselinux_repos:
+  - rpm-centos7-base-remote
+  - rpm-centos7-updates-remote
+  - rpm-centos7-cassandra-remote
+  - rpm-centos7-docker-remote
+  - rpm-centos7-dotnet-remote
+  - rpm-centos7-elastic-remote
+  - rpm-centos7-epel-remote
+  - rpm-centos7-erlang-remote
+  - rpm-centos7-extras-remote
+  - rpm-centos7-gitlab-remote
+  - rpm-centos7-grafana-remote
+  - rpm-centos7-ius-remote
+  - rpm-centos7-jenkins-remote
+  - rpm-centos7-nginx-remote
+  - rpm-centos7-nodejs-remote
+  - rpm-centos7-postgresql-remote
+  - rpm-centos7-rabbitmq-remote
+  - rpm-centos7-fluentbit-local
+  - rpm-centos7-fluentd-local
+  - rpm-centos7-gluster7-remote
+  - rpm-centos7-postgresql12-remote
+
+baselinux_pkgs:
+  - vim
+  - wget
+  - mlocate
+  - chrony
+  - htop
+  - jq
+  - telnet
+  - nmap
+  - bash-completion
+  - bind-utils
+  - curl
+  - screen
+  - net-tools
+  - git
+  - iotop
+  - open-vm-tools
+  - psmisc
+  - ca-certificates
+  - sysstat
+  - nload
+  - iftop
+  - strace
+  - gdb
+  - figlet
+  - lsof
+  - nfs-utils
+  - cifs-utils

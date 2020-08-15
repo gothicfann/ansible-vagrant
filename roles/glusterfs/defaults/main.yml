@@ -1,0 +1,16 @@
+---
+
+glusterfs_peer_nodes:
+  - hostname: server1
+    ip: 1.2.3.4
+    devices:
+      - /dev/sdb
+  - hostname: server2
+    ip: 1.2.3.5
+    devices:
+      - /dev/sdb
+      - /dev/sdc
+      - /dev/sdd
+
+glusterfs_heketi_enabled: no
+glusterfs_heketi_password: somepassword

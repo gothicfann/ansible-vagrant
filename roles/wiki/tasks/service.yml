@@ -1,0 +1,7 @@
+---
+
+- name: start/enable wikijs
+  systemd:
+    name: wiki
+    state: started
+    enabled: yes

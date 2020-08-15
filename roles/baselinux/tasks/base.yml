@@ -1,0 +1,109 @@
+---
+- name: set hostname
+  hostname:
+    name: "{{ baselinux_hostname }}"
+  notify:
+    - restart rsyslog
+
+- name: set timezone
+  timezone:
+    name: "{{ baselinux_timezone }}"
+  notify:
+    - restart rsyslog
+
+- name: selinux permissive
+  selinux:
+    policy: targeted
+    state: "{{ baselinux_selinux_mode }}"
+
+- name: modify ulimit default parameters
+  copy:
+    src: files/limits.conf
+    dest: /etc/security/limits.conf
+    mode: 0644
+
+- name: configure ssh client
+  template:
+    src: templates/ssh_config.j2
+    dest: /etc/ssh/ssh_config
+
+- name: configure sshd
+  template:
+    src: templates/sshd_config.j2
+    dest: /etc/ssh/sshd_config
+  notify:
+    - restart sshd
+
+- name: set root password
+  shell: echo '{{ baselinux_root_passwd }}' | passwd root --stdin
+
+- name: enable dynamic ca configuration feature
+  shell: update-ca-trust force-enable
+
+- name: copy ca certs
+  copy:
+    src: "{{ item }}"
+    dest: /etc/pki/ca-trust/source/anchors/
+  with_fileglob:
+    - files/certs/*
+
+- name: extract certificates
+  shell: update-ca-trust extract
+
+- name: install epel-release
+  yum:
+    name: epel-release
+    state: present
+  when: not baselinux_delete_default_repos|bool
+
+- name: find default repos
+  find:
+    paths: /etc/yum.repos.d
+    excludes:
+      - example-artifactory.repo
+  register: default_repos
+  when: baselinux_delete_default_repos|bool
+
+- name: delete default repos
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  with_items: "{{ default_repos.files }}"
+  when: baselinux_delete_default_repos|bool
+
+- name: configure custom repos
+  yum_repository:
+    name: "{{ item }}"
+    description: "{{ item }}"
+    baseurl: "https://{{ baselinux_repo_server }}/artifactory/{{ item }}"
+    gpgcheck: no
+    file: example-artifactory
+  with_items:
+    - "{{ baselinux_repos }}"
+  when: baselinux_delete_default_repos|bool
+
+- name: configure kubernetes custom repo
+  yum_repository:
+    name: rpm-centos7-kubernetes-remote
+    description: rpm-centos7-kubernetes-remote
+    baseurl: "http://devops:AP6GanvqYx62bhBy8EkHH9aMh2Tzr2wHxx1qUi@jfrog.example.com/artifactory/rpm-centos7-kubernetes-remote/repos/kubernetes-el7-x86_64/"
+    gpgcheck: no
+    file: example-artifactory
+  when: baselinux_delete_default_repos|bool
+
+- name: install baselinux packages
+  yum:
+    name: "{{ baselinux_pkgs }}"
+    state: latest
+
+- name: generate figlet banner
+  shell: figlet {{ baselinux_figlet_string }}
+  register: figlet_string
+
+- set_fact:
+    baselinux_motd_banner: "{{ figlet_string.stdout }}"
+
+- name: configure motd
+  template:
+    src: templates/motd.j2
+    dest: /etc/motd

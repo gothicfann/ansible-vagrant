@@ -1,0 +1,9 @@
+---
+- hosts: all
+  roles:
+    - baselinux
+  vars:
+    baselinux_root_passwd: atzn0p1t
+    baselinux_es_host: elasticsearch01.ede.local
+    baselinux_es_user: admin
+    baselinux_es_passwd: jmkc7dr4epzrydbtcnnvhqer358f9efw

@@ -1,0 +1,6 @@
+---
+
+- name: install cassandra
+  yum:
+    name: cassandra
+    state: present

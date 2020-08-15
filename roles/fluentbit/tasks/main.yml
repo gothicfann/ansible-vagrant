@@ -1,0 +1,34 @@
+---
+
+- name: install fluent-bit
+  yum:
+    name: td-agent-bit
+    state: present
+
+- name: modify fluent-bit parsers
+  copy:
+    src: files/parsers.conf
+    dest: /etc/td-agent-bit/parsers.conf
+    mode: 0644
+  notify:
+    - restart fluent-bit
+
+- name: configure fluent-bit
+  template:
+    src: templates/td-agent-bit.conf.j2
+    dest: /etc/td-agent-bit/td-agent-bit.conf
+  notify:
+    - restart fluent-bit
+
+- name: configure rsyslog to use with fluent-bit
+  copy:
+    src: files/60-fluent-bit.conf
+    dest: /etc/rsyslog.d/60-fluent-bit.conf
+  notify:
+    - restart rsyslog
+
+- name: start/enable fluent-bit
+  systemd:
+    name: td-agent-bit
+    state: started
+    enabled: yes

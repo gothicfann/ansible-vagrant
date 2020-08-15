@@ -1,0 +1,46 @@
+---
+
+- name: install fluentd
+  yum:
+    name: td-agent
+    state: present
+
+- name: install the 'Development tools' package group
+  yum:
+    name: "@Development tools"
+    state: present
+
+- name: install geoip c library
+  yum:
+    name: "geoip-devel"
+    state: present
+
+- name: install fluentd geopip plugin
+  shell: /usr/sbin/td-agent-gem install fluent-plugin-geoip > {{ ansible_env.HOME }}/geoip_plugin_installed
+  args:
+    creates: "{{ ansible_env.HOME }}/geoip_plugin_installed"
+
+- name: configure fluentd
+  template:
+    src: templates/td-agent.conf.j2
+    dest: /etc/td-agent/td-agent.conf
+  notify:
+    - restart fluentd
+
+- name: create fluentd service override directory
+  file:
+    path: /etc/systemd/system/td-agent.service.d/
+    state: directory
+
+- name: override fluentd default service unit
+  copy:
+    src: files/override.conf
+    dest: /etc/systemd/system/td-agent.service.d/override.conf
+  notify:
+    - restart fluentd
+
+- name: start/enable fluentd
+  systemd:
+    name: td-agent
+    state: started
+    enabled: yes

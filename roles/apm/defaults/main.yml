@@ -1,0 +1,7 @@
+---
+
+apm_version: 7.4.2
+apm_host: 127.0.0.1
+apm_port: 8200
+apm_setup_template: true
+apm_ilm_enabled: false

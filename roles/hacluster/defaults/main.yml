@@ -1,0 +1,6 @@
+---
+
+hacluster_nodes: []
+hacluster_passwd: "admin"
+hacluster_virtual_ip: 172.25.38.11
+hacluster_configure: no

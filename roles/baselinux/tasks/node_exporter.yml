@@ -1,0 +1,33 @@
+---
+
+- name: download node_exporter zipped archive
+  get_url:
+    url: https://jfrog.example.com/artifactory/generic-local/node_exporter-0.18.1.linux-amd64.tar.gz
+    dest: "{{ ansible_env.HOME }}/node_exporter-0.18.1.linux-amd64.tar.gz"
+
+- name: extract node_exporter zipped archive
+  unarchive:
+    src: "{{ ansible_env.HOME }}/node_exporter-0.18.1.linux-amd64.tar.gz"
+    dest: "{{ ansible_env.HOME }}"
+    remote_src: yes
+
+- name: copy node_exporter bin file
+  copy:
+    src: "{{ ansible_env.HOME }}/node_exporter-0.18.1.linux-amd64/node_exporter"
+    dest: /usr/local/bin/
+    remote_src: yes
+    mode: preserve
+
+- name: create node_exporter service file
+  copy:
+    src: files/node_exporter.service
+    dest: /etc/systemd/system/node_exporter.service
+  notify:
+    - daemon reload
+    - restart node_exporter
+
+- name: start/enable node_exporter
+  systemd:
+    name: node_exporter
+    state: started
+    enabled: yes

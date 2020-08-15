@@ -1,0 +1,13 @@
+---
+
+- name: restart postgresql
+  systemd:
+    name: postgresql-11
+    state: restarted
+    enabled: yes
+
+- name: restart wikijs
+  systemd:
+    name: wiki
+    state: restarted
+    enabled: yes

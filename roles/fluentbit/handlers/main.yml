@@ -1,0 +1,7 @@
+---
+
+- name: restart fluent-bit
+  systemd:
+    name: td-agent-bit
+    state: restarted
+    daemon_reload: yes

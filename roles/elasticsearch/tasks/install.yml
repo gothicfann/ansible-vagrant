@@ -1,0 +1,11 @@
+---
+
+- name: install java
+  yum:
+    name: java
+    state: present
+
+- name: install elasticsearch
+  yum:
+    name: "elasticsearch-{{ elasticsearch_version }}"
+    state: present

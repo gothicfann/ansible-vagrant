@@ -1,0 +1,4 @@
+---
+
+- import_tasks: redis.yml
+- import_tasks: redis_exporter.yml

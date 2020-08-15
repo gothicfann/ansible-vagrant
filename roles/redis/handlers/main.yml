@@ -1,0 +1,17 @@
+---
+
+- name: restart redis
+  systemd:
+    name: redis
+    state: restarted
+    daemon_reload: yes
+
+- name: daemon reload
+  systemd:
+    daemon_reload: yes
+
+- name: restart redis_exporter
+  systemd:
+    name: redis_exporter
+    state: restarted
+    daemon_reload: yes

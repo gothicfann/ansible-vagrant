@@ -1,0 +1,9 @@
+---
+
+- name: join cluster as worker
+  shell: |
+          kubeadm join {{ kubernetes_control_endpoint_address }}:{{ kubernetes_control_endpoint_port }} \
+                       --token {{ kubernetes_token }} \
+                       --discovery-token-unsafe-skip-ca-verification > {{ ansible_env.HOME }}/join_cluster
+  args:
+    creates: "{{ ansible_env.HOME }}/join_cluster"

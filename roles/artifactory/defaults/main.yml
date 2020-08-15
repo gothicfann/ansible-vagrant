@@ -1,0 +1,8 @@
+---
+
+artifactory_jvm_min_heap_size: "-Xms512m"
+artifactory_jvm_max_heap_size: "-Xms4g"
+artifactory_nginx_ssl_dir: /etc/nginx/ssl
+artifactory_protocol: http
+artifactory_http_addr: 127.0.0.1
+artifactory_http_port: 8081

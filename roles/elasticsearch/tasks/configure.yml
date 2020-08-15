@@ -1,0 +1,87 @@
+---
+
+- name: disable swappiness
+  shell: swapoff -a > {{ ansible_env.HOME }}/swap_disabled
+  args:
+    creates: "{{ ansible_env.HOME }}/swap_disabled"
+
+- name: configure fstab
+  replace:
+    path: /etc/fstab
+    regexp: '.*swap.*'
+    replace: ''
+
+- name: create dir for data and logs
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: elasticsearch
+    group: elasticsearch
+  with_items:
+    - "{{ elasticsearch_data_dir }}"
+    - "{{ elasticsearch_log_dir }}"
+  notify:
+    - restart elasticsearch
+
+- name: configure elasticsearch
+  template:
+    src: templates/elasticsearch.yml.j2
+    dest: /etc/elasticsearch/elasticsearch.yml
+    owner: root
+    group: elasticsearch
+    mode: 0660
+  notify:
+    - restart elasticsearch
+
+- name: adjust elasticsaerch jvm heap size
+  template:
+    src: templates/jvm.options.j2
+    dest: /etc/elasticsearch/jvm.options
+    owner: root
+    group: elasticsearch
+    mode: 0660
+  notify:
+    - restart elasticsearch
+
+- name: create dir for elasticsearch.service override
+  file:
+    path: /etc/systemd/system/elasticsearch.service.d/
+    state: directory
+    owner: root
+    group: root
+
+- name: override elasticsearch default service parameters
+  copy:
+    src: files/override.conf
+    dest: /etc/systemd/system/elasticsearch.service.d/override.conf
+  notify:
+    - restart elasticsearch
+
+- name: create admin user for elasticsearch
+  shell: /usr/share/elasticsearch/bin/elasticsearch-users useradd {{ elasticsearch_admin_user }} -p {{ elasticsearch_admin_password }} -r superuser > {{ ansible_env.HOME }}/user_test
+  args:
+    creates: "{{ ansible_env.HOME }}/user_test"
+  notify:
+    - restart elasticsearch
+
+- name: copy elasticsearch ca certificate
+  copy:
+    src: files/elastic-stack-ca.p12
+    dest: /etc/elasticsearch/elastic-stack-ca.p12
+    owner: root
+    group: elasticsearch
+    mode: 0660
+
+- name: generate server certificates for elasticsearch
+  shell: /usr/share/elasticsearch/bin/elasticsearch-certutil cert --ca /etc/elasticsearch/elastic-stack-ca.p12 --out {{ elasticsearch_certificates }} --pass "" --ca-pass ""
+  args:
+    creates: "{{ elasticsearch_certificates }}"
+  notify:
+    - restart elasticsearch
+
+- name: modify elasticsearch server certificates permissions
+  file:
+    path: "{{ elasticsearch_certificates }}"
+    mode: 0660
+    owner: root
+    group: elasticsearch

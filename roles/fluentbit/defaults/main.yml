@@ -1,0 +1,4 @@
+---
+
+fluentbit_fluentd_host: fluentd01.example.com
+fluentbit_fluentd_port: 24224

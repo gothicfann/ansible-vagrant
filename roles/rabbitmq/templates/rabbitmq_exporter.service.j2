@@ -1,0 +1,15 @@
+[Unit]
+Description=Redis Exporter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+Environment=RABBIT_URL=http://127.0.0.1:15672
+Environment=PUBLISH_PORT={{rabbitmq_exporter_port }}
+Environment=RABBIT_USER={{ rabbitmq_default_user }}
+Environment=RABBIT_PASSWORD={{ rabbitmq_default_pass }}
+ExecStart=/usr/local/bin/rabbitmq_exporter
+
+[Install]
+WantedBy=multi-user.target

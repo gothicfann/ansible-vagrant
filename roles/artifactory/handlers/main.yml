@@ -1,0 +1,13 @@
+---
+
+- name: restart nginx
+  systemd:
+    name: nginx
+    state: restarted
+    daemon_reload: yes
+
+- name: restart artifactory
+  systemd:
+    name: artifactory
+    state: restarted
+    daemon_reload: yes

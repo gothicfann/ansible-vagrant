@@ -1,0 +1,35 @@
+---
+
+- name: download rabbitmq_exporter zipped archive
+  get_url:
+    url: https://jfrog.example.com/artifactory/generic-local/rabbitmq_exporter-0.29.0.linux-amd64.tar.gz
+    dest: "{{ ansible_env.HOME }}/rabbitmq_exporter-0.29.0.linux-amd64.tar.gz"
+
+- name: extract rabbitmq_exporter zipped archive
+  unarchive:
+    src: "{{ ansible_env.HOME }}/rabbitmq_exporter-0.29.0.linux-amd64.tar.gz"
+    dest: "{{ ansible_env.HOME }}"
+    remote_src: yes
+
+- name: copy rabbitmq_exporter bin file
+  copy:
+    src: "{{ ansible_env.HOME }}/rabbitmq_exporter-0.29.0.linux-amd64/rabbitmq_exporter"
+    dest: /usr/local/bin/
+    remote_src: yes
+    mode: preserve
+  with_items:
+    - rabbitmq_exporter
+
+- name: create rabbitmq_exporter service file
+  template:
+    src: templates/rabbitmq_exporter.service.j2
+    dest: /etc/systemd/system/rabbitmq_exporter.service
+  notify:
+    - daemon reload
+    - restart rabbitmq_exporter
+
+- name: start/enable rabbitmq_exporter
+  systemd:
+    name: rabbitmq_exporter
+    state: started
+    enabled: yes

@@ -1,0 +1,18 @@
+---
+
+- name: install java
+  yum:
+    name: java
+    state: present
+
+- name: install jenkins
+  yum:
+    name: jenkins
+    state: present
+
+- name: start/enable jenkins
+  systemd:
+    name: jenkins
+    state: started
+    enabled: yes
+

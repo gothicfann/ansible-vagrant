@@ -1,0 +1,93 @@
+---
+
+- name: download heketi archive
+  get_url:
+    url: https://jfrog.example.com/artifactory/generic-local/heketi-v9.0.0.linux.amd64.tar.gz
+    dest: "{{ ansible_env.HOME }}"
+
+- name: extract heketi archive
+  unarchive:
+    src: "{{ ansible_env.HOME }}/heketi-v9.0.0.linux.amd64.tar.gz"
+    dest: "{{ ansible_env.HOME }}"
+    remote_src: yes
+
+- name: add heketi group
+  group:
+    name: heketi
+    state: present
+    system: yes
+    gid: 515
+
+- name: add heketi user
+  user:
+    name: heketi
+    state: present
+    generate_ssh_key: yes
+    system: yes
+    uid: 515
+    home: /var/lib/heketi
+    group: heketi
+    shell: /sbin/nologin
+
+- name: create directory for heketi data
+  file:
+    path: /var/lib/heketi
+    state: directory
+    owner: heketi
+    group: heketi
+
+- name: create directory for heketi logs
+  file:
+    path: /var/log/heketi
+    state: directory
+    owner: heketi
+    group: heketi
+
+- name: create directory for heketi configs
+  file:
+    path: /etc/heketi
+    state: directory
+
+- name: copy heketi executables
+  copy:
+    remote_src: yes
+    mode: preserve
+    src: "{{ ansible_env.HOME }}/heketi/{{ item }}"
+    dest: "/usr/local/bin/{{ item }}"
+  loop:
+    - heketi
+    - heketi-cli
+
+- name: generate heketi config
+  template:
+    src: templates/heketi.json.j2
+    dest: /etc/heketi/heketi.json
+  notify:
+    - restart heketi
+
+- name: generate heketi topology
+  template:
+    src: templates/topology.json.j2
+    dest: /etc/heketi/topology.json
+  notify:
+    - update heketi topology
+
+- name: copy heketi service file
+  copy:
+    src: files/heketi.service
+    dest: /etc/systemd/system/heketi.service
+  notify:
+    - daemon reload
+
+- name: fetch id_rsa.pub
+  fetch:
+    src: /var/lib/heketi/.ssh/id_rsa.pub
+    dest: /tmp/id_rsa.pub-heketi
+    flat: yes
+
+- name: start/enable heketi
+  systemd:
+    name: heketi
+    state: started
+    enabled: yes
+    daemon_reload: yes

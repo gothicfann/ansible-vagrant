@@ -1,0 +1,9 @@
+server.port: "{{ kibana_port }}"
+server.host: "{{ kibana_host }}"
+server.name: "Kibana"
+elasticsearch.hosts:
+{% for elasticsearch_node in kibana_elasticsearch_nodes %}
+  - http://{{ elasticsearch_node }}:{{ kibana_elasticsearch_port }}
+{% endfor %}
+elasticsearch.username: "{{ kibana_elasticsearch_admin_user }}"
+elasticsearch.password: "{{ kibana_elasticsearch_admin_password }}"

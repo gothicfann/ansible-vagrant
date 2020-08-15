@@ -1,0 +1,9 @@
+---
+
+- import_tasks: master.yml
+  when: postgresql12_mode == "master"
+
+- import_tasks: slave.yml
+  when: postgresql12_mode == "slave"
+
+- import_tasks: postgres_exporter.yml

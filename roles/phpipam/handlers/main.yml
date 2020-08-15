@@ -1,0 +1,12 @@
+---
+
+- name: restart apache
+  systemd:
+    name: httpd
+    state: restarted
+    daemon_reload: yes
+
+- name: restart php-fpm
+  systemd:
+    name: php-fpm
+    state: restarted

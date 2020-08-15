@@ -1,0 +1,7 @@
+---
+
+fluentd_workers: 8
+
+fluentd_es_hosts: elasticsearch01.example.com:9200,elasticsearch02.example.com:9200,elasticsearch03.example.com:9200
+fluentd_es_user: admin
+fluentd_es_password: jmkc7dr4epzrydbtcnnvhqer358f9efw

@@ -1,0 +1,16 @@
+---
+
+- name: create wikijs directory
+  file:
+    path: /var/wiki
+    state: directory
+
+- name: download wikijs
+  get_url:
+    url: https://github.com/Requarks/wiki/releases/download/2.4.107/wiki-js.tar.gz
+    dest: /var/wiki
+
+- name: install nodejs
+  yum:
+    name: nodejs
+    state: present

@@ -1,0 +1,234 @@
+groups:
+  - name: All
+    rules:
+      - alert: ExporterDown
+        expr: up == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Exporter Down"
+          description: "Exporter `{{ $labels.instance }}` is down"
+
+  - name: Prometheus
+    rules:
+      - alert: PrometheusConfigurationReload
+        expr: prometheus_config_last_reload_successful != 1
+        for: 5m
+        labels:
+          severity: error
+        annotations:
+          summary: "Prometheus Configuration Error"
+          description: "There was prometheus configuration error, while reloading it."
+
+  - name: Hosts
+    rules:
+      - alert: HighCpuLoad
+        expr: ceil(100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU Load"
+          description: "CPU Utilization on `{{ $labels.instance }}` is `{{ $value }}%`"
+      - alert: OutOfMemory
+        expr: ceil(node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100) < 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Out Of Memory"
+          description: "The memory usage of node `{{ $labels.instance }}` is high, there is `{{ $value }}%` free memory"
+      - alert: UnusualNetworkThroughputIn
+        expr: ceil(sum by (instance) (irate(node_network_receive_bytes_total[2m])) / 1024 / 1024) > 100 
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Unusual Network Throughput In"
+          description: "Network interfaces of host `{{ $labels.instance }}` are probably receiving `{{ $value }}MB/s` data."
+      - alert: UnusualNetworkThroughputOut
+        expr: ceil(sum by (instance) (irate(node_network_transmit_bytes_total[2m])) / 1024 / 1024) > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Unusual Network Throughput Out"
+          description: "Network interfaces of host `{{ $labels.instance }}` are probably sending `{{ $value }}MB/s` data."
+      - alert: UnusualDiskReadRate
+        expr: ceil(sum by (instance) (irate(node_disk_read_bytes_total[2m])) / 1024 / 1024) > 50
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Unusual Disk Read Rate"
+          description: "Disk on host `{{ $labels.instance }}` is probably reading `{{ $value }}MB/s` data"
+      - alert: UnusualDiskWriteRate
+        expr: ceil(sum by (instance) (irate(node_disk_written_bytes_total[2m])) / 1024 / 1024) > 50
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Unusual Disk Write Rate"
+          description: "Disk on host `{{ $labels.instance }}` is probably writing `{{ $value }}MB/s` data"
+      - alert: OutOfDiskSpace
+        expr: ceil((node_filesystem_avail_bytes{device=~"/dev/.*",mountpoint!~"/var/.*"}  * 100) / node_filesystem_size_bytes{device=~"/dev/.*",mountpoint!~"/var/.*"}) < 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Out Of Disk Space"
+          description: "Disk is almost full on `{{ $labels.instance }}`, only `{{ $value }}%` is available"
+      - alert: OutOfInodes
+        expr: ceil(node_filesystem_files_free{device=~"/dev/.*",mountpoint!~"/var/.*"} / node_filesystem_files{device=~"/dev/.*",mountpoint!~"/var/.*"} * 100) < 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Out Of Inodes"
+          description: "Disk of `{{ $labels.instance }}` is almost running out of available inodes, `{{ $value }}%` is free."
+
+  - name: Blackbox
+    rules:
+        - alert: BlackboxProbeFailed
+          expr: probe_success == 0
+          for: 5m
+          labels:
+            severity: error
+          annotations:
+            summary: "Blackbox probe failed"
+            description: "Probe failed (instance {{ $labels.instance }})"
+
+  - name: Kubernetes
+    rules:
+      - alert: PodRestarts
+        expr: rate(kube_pod_container_status_restarts_total[5m]) > 0
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Kubernetes Pod Restarts"
+          description: "Pod with name `{{ $labels.pod }}` is restarting continuously"
+      - alert: PodStatus
+        expr: kube_pod_container_status_ready != 1
+        for: 5m
+        labels:
+          severity: error
+        annotations:
+          summary: "Kubernetes Pod Down"
+          description: "Pod with name `{{ $labels.pod }}` is down."
+
+
+  - name: PostgreSQL
+    rules:
+      - alert: PostgresqlDown
+        expr: pg_up == 0
+        for: 5m
+        labels:
+          severity: error
+        annotations:
+          summary: "PostgreSQL Down"
+          description: "PostgreSQL instance with name `{{ $labels.instance }}` is down"
+
+      - alert: TooManyConnections
+        expr: sum by (instance) (pg_stat_activity_count{datname!~"template.*|postgres"}) > max by (instance) (pg_settings_max_connections * 80/100)
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Too Many Connections"
+          description: "PostgreSQL instance `{{ $labels.instance }}` has too many connections"
+
+      - alert: DeadLocks
+        expr: rate(pg_stat_database_deadlocks{datname!~"template.*|postgres"}[5m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Dead Locks"
+          description: "PostgreSQL instance `{{ $labels.instance }}` has dead-locks"
+
+      - alert: SlowQueries
+        expr: avg(rate(pg_stat_activity_max_tx_duration{datname!~"template.*"}[5m])) BY (datname) > 60
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Slow Queries"
+          description: "PostgreSQL instance `{{ $labels.instance }}` executes slow queries (> 1min)"
+
+      - alert: HighRollbackRate
+        expr: rate(pg_stat_database_xact_rollback{datname!~"template.*"}[3m]) / rate(pg_stat_database_xact_commit{datname!~"template.*"}[3m]) > 0.02
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Rollback Rate"
+          description: "PostgreSQL instance `{{ $labels.instance }}` ratio of transactions being aborted compared to committed is > 2%"
+
+  - name: Redis
+    rules:
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 5m
+        labels:
+          severity: error
+        annotations:
+          summary: "Redis Down"
+          description: "Redis instance with name `{{ $labels.instance }}` is down"
+
+      - alert: MissingBackup
+        expr: time() - redis_rdb_last_save_timestamp_seconds{instance=~".*.example.com.*"} > 60 * 60 * 24
+        for: 5m
+        labels:
+          severity: error
+        annotations:
+          summary: "Missing Backup"
+          description: "Redis instance with name `{{ $labels.instance }}` has not been backuped for 24 hours"
+
+      - alert: ReplicationBroken
+        expr: delta(redis_connected_slaves[5m]) < 0
+        for: 5m
+        labels:
+          severity: error
+        annotations:
+          summary: "Replication Broken"
+          description: "Redis instance with name `{{ $labels.instance }}` lost a slave"
+
+      - alert: TooManyConnections
+        expr: redis_connected_clients > redis_config_maxclients * 80/100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Too Many Connections"
+          description: "Redis instance with name `{{ $labels.instance }}` has too many connections"
+
+      - alert: RejectedConnections
+        expr: increase(redis_rejected_connections_total[1m]) > 0
+        for: 5m
+        labels:
+          severity: error
+        annotations:
+          summary: "Rejected Connections"
+          description: "Some connections to Redis instance with name `{{ $labels.instance }}` has been rejected"
+
+  - name: RabbitMQ
+    rules:
+      - alert: RabbitmqDown
+        expr: rabbitmq_up == 0
+        for: 5m
+        labels:
+          severity: error
+        annotations:
+          summary: "RabbitMQ Down"
+          description: "RabbitMQ instance with name `{{ $labels.instance }}` is down"
+
+      - alert: TooManyMessagesInQueue
+        expr: rabbitmq_queue_messages_ready{queue=~".*TransactionalSmses$"} > 30
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Too Many Messages In Queue"
+          description: "RabbitMQ instance with name `{{ $labels.instance }}` Queue is filling up (> 30 msgs)"

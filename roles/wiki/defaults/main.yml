@@ -1,0 +1,11 @@
+---
+
+# wiki_postgresql_postgres_password: "kam9volpmjvr6srlx4b4towi8iycbwhr"
+wiki_postgresql_version: "11"
+wiki_postgresql_default_port: "5432"
+wiki_postgresql_db: "wiki"
+wiki_postgresql_user: "wiki"
+wiki_postgresql_password: "example"
+wiki_postgresql_base_dir: "/var/lib/pgsql"
+wiki_postgresql_data_dir: "{{ wiki_postgresql_base_dir }}/{{ wiki_postgresql_version }}/data"
+wiki_postgresql_bin_dir: "/usr/pgsql-{{ wiki_postgresql_version }}/bin"

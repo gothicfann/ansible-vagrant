@@ -1,0 +1,73 @@
+---
+
+- name: configure apache
+  template:
+    src: "templates/apache/httpd.conf.j2"
+    dest: "/etc/httpd/conf/httpd.conf"
+  notify:
+    - restart apache
+
+- name: configure apache ipam.conf
+  template:
+    src: "templates/apache/ipam.conf.j2"
+    dest: "/etc/httpd/conf.d/ipam.conf"
+  notify:
+    - restart apache
+
+- name: create ssl dir
+  file:
+    name: "{{ phpipam_httpd_ssl_dir }}"
+    state: directory
+
+- name: copy ssl files
+  copy:
+    src: "{{ item }}"
+    dest: "{{ phpipam_httpd_ssl_dir }}"
+  with_fileglob:
+    - files/ssl/*
+  notify:
+    - restart apache
+
+- name: change phpipam directory ownership
+  file:
+    path: /var/www/html
+    state: directory
+    owner: apache
+    group: apache
+
+- name: check if root password is set
+  shell: >
+    mysqladmin -u root status
+  changed_when: false
+  failed_when: false
+  register: root_pwd_check
+
+- name: create mariadb root password
+  mysql_user:
+    name: root
+    password: "{{ phpipam_password }}"
+    host: localhost
+    login_unix_socket: "{{ phpipam_mariadb_socket }}"
+    state: present
+  when: root_pwd_check.rc == 0
+
+- name: create phpipam directory
+  file:
+    path: /var/www/html
+    state: directory
+
+- name: download phpipam
+  git:
+    repo: "https://github.com/phpipam/phpipam.git"
+    dest: /var/www/html
+    update: no
+
+- name: modify phpipam configuration file
+  template:
+    src: phpipam/config.php.j2
+    dest: /var/www/html/config.php
+    owner: "{{ phpipam_apache_user }}"
+    group: "{{ phpipam_apache_user }}"
+  notify:
+    - restart php-fpm
+    - restart apache

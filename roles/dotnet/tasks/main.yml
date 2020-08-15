@@ -1,0 +1,11 @@
+---
+- name: install dotnet-sdk
+  yum:
+    name: "dotnet-sdk-{{ dotnet_version }}"
+    state: present
+    allow_downgrade: yes
+
+- name: install nuget
+  yum:
+    name: nuget
+    state: present

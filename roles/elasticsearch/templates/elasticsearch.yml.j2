@@ -1,0 +1,34 @@
+cluster.name: {{ elasticsearch_cluster_name }}
+node.name: {{ inventory_hostname }}
+path.data: {{ elasticsearch_data_dir }}
+path.logs: {{ elasticsearch_log_dir }}
+network.host: {{ elasticsearch_network_host }}
+bootstrap.memory_lock: {{ elasticsearch_bootstrap_memory_lock }}
+http.port: {{ elasticsearch_port }}
+discovery.seed_hosts:
+{% for host in elasticsearch_discovery_seed_hosts %}
+  - {{ host }}
+{% endfor %}
+cluster.initial_master_nodes:
+{% for node in elasticsearch_cluster_initial_master_nodes %}
+  - {{ node }}
+{% endfor %}
+xpack:
+  security:
+    enabled: true
+    authc:
+      realms:
+        file:
+          file1:
+            order: 0
+        native:
+          native1:
+            order: 1
+    transport:
+      ssl:
+        enabled: true
+        verification_mode: certificate
+        keystore:
+          path: {{ elasticsearch_certificates }}
+        truststore:
+          path: {{ elasticsearch_certificates }}

@@ -1,0 +1,72 @@
+{{ ansible_managed | comment }}
+
+{% if nginx_config.user is defined %}
+user {{ nginx_config.user }};
+{% else %}
+user nginx;
+{% endif %}
+{% if nginx_config.worker_processes is defined %}
+worker_processes  {{ nginx_config.worker_processes }};
+{% else %}
+worker_processes auto;
+{% endif %}
+{% if nginx_config.pid is defined %}
+pid {{ nginx_config.pid }};
+{% else %}
+pid /var/run/nginx.pid;
+{% endif %}
+error_log /var/log/nginx/error.log warn;
+{% if nginx_config.worker_rlimit_nofile is defined %}
+worker_rlimit_nofile  {{ nginx_config.worker_rlimit_nofile }};
+{% else %}
+worker_rlimit_nofile 1024;
+{% endif %}
+
+events {
+{% if nginx_config.events.worker_connections is defined %}
+    worker_connections {{ nginx_config.events.worker_connections }};
+{% else %}
+    worker_connections 1024;
+{% endif %}
+}
+
+{% if nginx_config.http is defined and nginx_http_enabled %}
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+    log_format  main  '$remote_addr $host [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+    access_log /var/log/nginx/access.log main;
+    sendfile        on;
+    #tcp_nopush     on;
+{% if nginx_config.http.keepalive_timeout is defined %}
+    keepalive_timeout  {{ nginx_config.http.keepalive_timeout }};
+{% else %}
+    keepalive_timeout 65;
+{% endif %}
+{% if nginx_config.http.gzip is defined %}
+    gzip {{ nginx_config.http.gzip }};
+{% else %}
+    #gzip on;
+{% endif %}
+{% if nginx_config.http.upstreams is defined and nginx_config.http.upstreams|length > 0 %}
+    include /etc/nginx/conf.d/http_upstreams;
+{% endif %}
+    include /etc/nginx/conf.d/*.conf;
+}
+{% endif %}
+{% if nginx_config.stream is defined and nginx_stream_enabled %}
+stream {
+{% if nginx_config.stream.upstreams is defined and nginx_config.stream.upstreams|length > 0 %}
+    log_format main '$remote_addr [$time_local] '
+                    '$protocol $status $bytes_sent $bytes_received '
+                    '$session_time "$upstream_addr" '
+                    '"$upstream_bytes_sent" "$upstream_bytes_received" "$upstream_connect_time"';
+    access_log /var/log/nginx/access.log main;
+    include /etc/nginx/conf.d/stream_upstreams;
+{% endif %}
+    include /etc/nginx/conf.d/*.conf;
+}
+{% endif %}
+

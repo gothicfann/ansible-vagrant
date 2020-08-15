@@ -1,0 +1,30 @@
+---
+phpipam_apache_user: apache
+phpipam_user: phpipam
+phpipam_password: example
+phpipam_mariadb_socket: /var/lib/mysql/mysql.sock
+phpipam_httpd_ssl_dir: /etc/httpd/ssl
+phpipam_httpd_document_root: /var/www/html
+
+phpipam_httpd:
+  - httpd 
+  - httpd_devel
+
+phpipam_mariadb_packages:
+  - mariadb
+  - mariadb-server
+  - MySQL-python
+
+phpipam_php_packages:
+  - php
+  - php-common
+  - php-cli
+  - php-gd
+  - php-ldap
+  - php-pdo
+  - php-pear
+  - php-snmp
+  - php-xml
+  - php-mysql
+  - php-mbstring
+  - php-fpm

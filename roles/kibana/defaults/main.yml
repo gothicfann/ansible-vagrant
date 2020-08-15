@@ -1,0 +1,11 @@
+---
+
+kibana_version: 7.4.1
+kibana_port: 5601
+kibana_host: 127.0.0.1
+
+kibana_elasticsearch_nodes:
+  - 127.0.0.1
+kibana_elasticsearch_port: 9200
+kibana_elasticsearch_admin_user: admin
+kibana_elasticsearch_admin_password: admin

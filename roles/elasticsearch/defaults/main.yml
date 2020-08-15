@@ -1,0 +1,19 @@
+---
+
+elasticsearch_version: 7.4.1
+elasticsearch_cluster_name: "elasticsearch"
+elasticsearch_node_name: "{{ inventory_hostname }}"
+elasticsearch_network_host: "0.0.0.0"
+elasticsearch_port: "9200"
+elasticsearch_data_dir: "/var/lib/elasticsearch"
+elasticsearch_log_dir: "/var/log/elasticsearch"
+elasticsearch_discovery_seed_hosts:
+  - "127.0.0.1"
+elasticsearch_cluster_initial_master_nodes:
+  - "127.0.0.1"
+elasticsearch_bootstrap_memory_lock: "true"
+elasticsearch_min_jvm_heap_size: "-Xms2g"
+elasticsearch_max_jvm_heap_size: "-Xmx2g"
+elasticsearch_certificates: /etc/elasticsearch/elastic-certificates.p12
+elasticsearch_admin_user: admin
+elasticsearch_admin_password: admin

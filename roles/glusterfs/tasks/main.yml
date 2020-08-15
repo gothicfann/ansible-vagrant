@@ -1,0 +1,12 @@
+---
+
+- import_tasks: heketi.yml
+  when: glusterfs_heketi_enabled|bool
+
+- name: set authorized key
+  authorized_key:
+    user: root
+    state: present
+    key: "{{ lookup('file', '/tmp/id_rsa.pub-heketi') }}"
+
+- import_tasks: gluster.yml

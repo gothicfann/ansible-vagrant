@@ -1,0 +1,26 @@
+---
+
+redis_bind: "0.0.0.0"
+redis_protected_mode: "no"
+redis_appendonly: "no"
+redis_requirepass: "example"
+redis_maxmemory: "2gb"
+redis_maxmemory_policy: "allkeys-lru"
+redis_save_enabled: false
+redis_save_directives:
+  - "save 900 1"
+  - "save 300 10"
+  - "save 60 10000"
+redis_dir: "/var/lib/redis"
+redis_logfile: "/var/log/redis/redis.log"
+redis_maxclients: "10000"
+
+# Redis Slave Configurations
+redis_slave_mode: false
+redis_master_ip: "1.2.3.4"
+
+# Redis Cluster Configurations
+redis_init: false
+redis_cluster_enabled: "no"
+redis_cluster_timeout: "5000"
+redis_nodes: []

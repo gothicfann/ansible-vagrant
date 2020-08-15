@@ -1,0 +1,53 @@
+---
+
+- name: install postgresql12-server
+  yum:
+    name: postgresql12-server
+    state: present
+
+- name: install postgresql12-contrib
+  yum:
+    name: postgresql12-contrib
+    state: present
+
+- name: create pgpass file
+  template:
+    src: templates/pgpass.j2
+    dest: "{{ postgresql12_base_dir }}/.pgpass"
+    owner: postgres
+    group: postgres
+    mode: 0600
+
+- name: replicate database cluster from master
+  command: "{{ postgresql12_bin_dir }}/pg_basebackup -P -R -X stream -c fast -h {{ postgresql12_master_host }} -p {{ postgresql12_port }} -U postgres -D {{ postgresql12_data_dir }}"
+  become: yes
+  become_user: postgres
+  args:
+    creates: "{{ postgresql12_data_dir }}/postgresql.auto.conf"
+
+- name: create log directory
+  file:
+    path: "{{ postgresql12_log_directory }}"
+    state: directory
+    owner: postgres
+    group: postgres
+
+- name: modify postgresql.conf
+  template:
+    src: templates/postgresql.conf.j2
+    dest: "{{ postgresql12_data_dir }}/postgresql.conf"
+    owner: postgres
+    group: postgres
+    mode: 0660
+  notify:
+    - restart postgresql
+
+- name: start postgresql
+  systemd:
+    name: postgresql-12
+    state: started
+
+- name: enable postgresql
+  systemd:
+    name: postgresql-12
+    enabled: yes

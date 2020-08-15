@@ -1,0 +1,18 @@
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: InitConfiguration
+bootstrapTokens:
+- token: "{{ kubernetes_token }}"
+  description: "kubeadm bootstrap token"
+  ttl: "0"
+localAPIEndpoint:
+  advertiseAddress: "{{ kubernetes_apiserver_advertise_address }}"
+  bindPort: {{ kubernetes_apiserver_advertise_port }}
+certificateKey: "{{ kubernetes_certificate_key }}"
+---
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: ClusterConfiguration
+kubernetesVersion: {{ kubernetes_version }}
+controlPlaneEndpoint: "{{ kubernetes_control_endpoint_address }}:{{ kubernetes_control_endpoint_port }}"
+networking:
+  podSubnet: "{{ kubernetes_pod_network_cidr }}"
+  serviceSubnet: "{{ kubernetes_service_network_cidr }}"
