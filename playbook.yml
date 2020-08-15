@@ -1,0 +1,6 @@
+---
+- hosts: all
+  roles:
+    - baselinux
+  vars:
+    baselinux_root_passwd: example

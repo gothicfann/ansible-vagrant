@@ -10,7 +10,7 @@ ansible roles development environment using vagrant
 2. `vagrant (latest)`
 3. `ansible (latest)`
 
-## configuration variables explained
+## vagrant configuration variables explained
 
 ```
 memory: 2048                  # ram for each vm
@@ -18,7 +18,7 @@ cpus: 1                       # cpus for each vm
 
 nodes: 2                      # number of vms
 box: centos/7                 # vagrant box for each vm
-playbook: test.yml            # playbook used to run role(s)
+playbook: playbook.yml        # playbook used to run role(s)
 ```
 **Note:** vagrant automatically assigns VM hostnames and private IPs like this:
 ```
@@ -30,8 +30,8 @@ node2 - 192.168.77.22
 ## usage
 
 1. create role and put it in `roles/` directory.
-2. create custom playbook (e.g. `example.yml`) to test your role.
+2. create custom playbook (e.g. `playbook.yml`) to test your role.
 3. change `config.yml` variables for your needs.
 4. run command `vagrant up` and wait for provisioning.
 
-**Note:** Do not try to change anything in `Vagrantfile`
+**Note:** do not try to change anything in `Vagrantfile`
